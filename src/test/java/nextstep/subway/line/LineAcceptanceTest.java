@@ -12,10 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static nextstep.subway.utils.AcceptanceApiFactory.지하철역_생성;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("지하철 노션 관련 기능")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -38,13 +40,17 @@ public class LineAcceptanceTest {
 
     @Test
     @DisplayName("지하철 노선을 생성 후 지하철 노선 조회 테스트")
-    void aa() {
+    void createLine() {
         ExtractableResponse<Response> response = 지하철노선_생성("2호선");
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
 
-
+        List<String> 지하철노선_조회_결과 = 지하철노선_조회();
+        assertAll(
+                () -> assertThat(지하철노선_조회_결과).size().isEqualTo(1),
+                () -> assertThat(지하철노선_조회_결과).containsAnyOf("2호선")
+        );
     }
 
 
@@ -63,5 +69,12 @@ public class LineAcceptanceTest {
                 .when().post("/line")
                 .then().log().all()
                 .extract();
+    }
+
+    private List<String> 지하철노선_조회() {
+        return RestAssured.given().log().all()
+                .when().get("/lines")
+                .then().log().all()
+                .extract().jsonPath().getList("name", String.class);
     }
 }
