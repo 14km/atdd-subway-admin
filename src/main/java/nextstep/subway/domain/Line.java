@@ -7,10 +7,15 @@ public class Line {
 
     @Embedded
     private final Sections sections = new Sections();
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String color;
 
     protected Line() {
